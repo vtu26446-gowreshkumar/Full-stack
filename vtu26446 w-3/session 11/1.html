@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>semantic layouts · grid + fixed sidebar</title>
+  <style>
+    /* base & reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f4f7fb;
+      color: #1e293b;
+      line-height: 1.5;
+      padding: 2rem 1.5rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* main container uses grid to create the fixed-sidebar layout */
+    .app-layout {
+      display: grid;
+      grid-template-columns: 280px 1fr;      /* fixed sidebar + main content */
+      gap: 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+      flex: 1;
+    }
+
+    /* ========== FIXED SIDEBAR (SEMANTIC <aside>) ========== */
+    .fixed-sidebar {
+      position: sticky;
+      top: 2rem;           /* stays fixed while scrolling */
+      align-self: start;
+      background: white;
+      border-radius: 28px;
+      padding: 2rem 1.5rem;
+      box-shadow: 0 15px 30px -12px rgba(0,20,40,0.15);
+      border: 1px solid #e9eef3;
+      height: auto;
+      transition: box-shadow 0.2s;
+    }
+
+    .fixed-sidebar header {
+      margin-bottom: 2rem;
+    }
+
+    .fixed-sidebar h2 {
+      font-size: 1.7rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      background: linear-gradient(145deg, #0f2b3d, #1e4b6a);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.25rem;
+    }
+
+    .fixed-sidebar .sidebar-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .fixed-sidebar .sidebar-nav a {
+      display: block;
+      padding: 0.75rem 1rem;
+      background: #f8fafd;
+      border-radius: 18px;
+      color: #1e3a5f;
+      text-decoration: none;
+      font-weight: 500;
+      transition: 0.2s;
+      border: 1px solid transparent;
+    }
+
+    .fixed-sidebar .sidebar-nav a:hover {
+      background: #e6eff9;
+      border-color: #bdd3e8;
+      transform: translateX(4px);
+    }
+
+    .fixed-sidebar footer {
+      margin-top: 2.5rem;
+      font-size: 0.85rem;
+      color: #5e6f88;
+      border-top: 1px dashed #cddbe9;
+      padding-top: 1.5rem;
+    }
+
+    /* ========== MAIN CONTENT (right column) ========== */
+    .main-content {
+      display: flex;
+      flex-direction: column;
+      gap: 2.2rem;
+    }
+
+    /* page header (semantic <header> inside main) */
+    .content-header {
+      background: white;
+      border-radius: 28px;
+      padding: 1.8rem 2.2rem;
+      box-shadow: 0 8px 18px -6px rgba(0,32,64,0.08);
+      border: 1px solid #e2eaf2;
+    }
+
+    .content-header h1 {
+      font-size: 2.2rem;
+      font-weight: 600;
+      color: #0b2b40;
+      letter-spacing: -0.02em;
+    }
+
+    .content-header p {
+      color: #4b6589;
+      margin-top: 0.4rem;
+      font-size: 1.1rem;
+    }
+
+    /* ===== GRID-BASED LAYOUT SECTION ===== */
+    .grid-section {
+      background: white;
+      border-radius: 28px;
+      padding: 2rem 2rem 2.5rem;
+      box-shadow: 0 8px 18px -6px rgba(0,32,64,0.08);
+      border: 1px solid #e2eaf2;
+    }
+
+    .grid-section header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 1.8rem;
+      flex-wrap: wrap;
+    }
+
+    .grid-section h3 {
+      font-size: 1.8rem;
+      font-weight: 550;
+      color: #163a57;
+    }
+
+    .grid-section .badge {
+      background: #dde9f5;
+      padding: 0.35rem 1.2rem;
+      border-radius: 40px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #1b4b6e;
+    }
+
+    /* responsive grid — multiple configurations */
+    .grid-container {
+      display: grid;
+      gap: 1.8rem;
+    }
+
+    /* configuration A: three-column grid on larger screens */
+    .grid-config-a {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    /* card styling */
+    .grid-card {
+      background: #f9fcff;
+      padding: 1.8rem 1.4rem;
+      border-radius: 24px;
+      border: 1px solid #dae6f2;
+      transition: all 0.2s;
+    }
+
+    .grid-card:hover {
+      background: #ffffff;
+      border-color: #aac3db;
+      box-shadow: 0 12px 22px -10px rgba(20,60,100,0.2);
+      transform: translateY(-3px);
+    }
+
+    .grid-card h4 {
+      font-size: 1.5rem;
+      font-weight: 560;
+      margin-bottom: 0.75rem;
+      color: #103247;
+    }
+
+    .grid-card p {
+      color: #2b4d6a;
+      margin-bottom: 1.5rem;
+    }
+
+    .grid-card footer {
+      font-size: 0.9rem;
+      color: #587b9c;
+      border-top: 1px solid #cbdbea;
+      padding-top: 1rem;
+      margin-top: auto;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* second grid: configuration B — 2fr 1fr (asymmetric) */
+    .grid-config-b {
+      grid-template-columns: 2fr 1fr;
+      margin-top: 2.5rem;
+    }
+
+    .grid-config-b .grid-card {
+      background: #f1f7fd;
+    }
+
+    .grid-config-b .grid-card:first-child {
+      background: #ecf3fa;
+    }
+
+    /* third example: four-column mini grid (for tags/tools) */
+    .grid-config-c {
+      grid-template-columns: repeat(4, 1fr);
+      margin-top: 2.5rem;
+      gap: 1rem;
+    }
+
+    .grid-config-c .grid-card {
+      padding: 1.2rem 0.8rem;
+      text-align: center;
+      background: #f4f9ff;
+    }
+
+    .grid-config-c .grid-card h4 {
+      font-size: 1.2rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .grid-config-c .grid-card p {
+      font-size: 0.85rem;
+      margin-bottom: 0.5rem;
+    }
+
+    /* ===== extra semantic section: article feed ===== */
+    .article-feed {
+      background: white;
+      border-radius: 28px;
+      padding: 2rem;
+      border: 1px solid #e2eaf2;
+    }
+
+    .article-feed header {
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .article-feed h3 {
+      font-size: 1.7rem;
+      font-weight: 550;
+      color: #163a57;
+    }
+
+    .feed-item {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      padding: 1.2rem 0;
+      border-bottom: 1px solid #e2ecf5;
+    }
+
+    .feed-item:last-child {
+      border-bottom: none;
+    }
+
+    .feed-item time {
+      min-width: 70px;
+      font-weight: 600;
+      color: #22638b;
+    }
+
+    .feed-item p {
+      font-size: 1.1rem;
+    }
+
+    .feed-item p strong {
+      color: #0e2f44;
+    }
+
+    /* footer of whole page (semantic) */
+    .page-footer {
+      margin-top: 2rem;
+      text-align: center;
+      color: #617e9c;
+      font-size: 0.9rem;
+      background: transparent;
+      padding: 1rem;
+      border-top: 2px solid #d2e2f0;
+    }
+
+    /* Responsive fallback: if screen < 900px, stack sidebar and adapt grids */
+    @media (max-width: 900px) {
+      .app-layout {
+        grid-template-columns: 1fr;  /* sidebar becomes normal block */
+        gap: 1.5rem;
+      }
+      .fixed-sidebar {
+        position: static;    /* no longer fixed on narrow screens */
+        width: 100%;
+      }
+      .grid-config-a {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .grid-config-c {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .grid-config-a, .grid-config-b, .grid-config-c {
+        grid-template-columns: 1fr;
+      }
+      .content-header h1 {
+        font-size: 1.8rem;
+      }
+      body {
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- overall page uses grid with fixed sidebar semantic template -->
+  <div class="app-layout">
+
+    <!-- fixed sidebar (semantic <aside>) -->
+    <aside class="fixed-sidebar">
+      <header>
+        <h2>📌 library</h2>
+        <p style="color:#34658b; margin-top: 0.3rem;">fixed sidebar</p>
+      </header>
+
+      <nav class="sidebar-nav" aria-label="primary sidebar">
+        <a href="#">📊 dashboard</a>
+        <a href="#">📁 projects</a>
+        <a href="#">🧩 components</a>
+        <a href="#">📈 analytics</a>
+        <a href="#">⚙️ settings</a>
+        <a href="#">📨 messages</a>
+      </nav>
+
+      <footer>
+        <p>🎯 sticky sidebar<br>• stays fixed on scroll<br>• semantic aside + nav</p>
+        <p style="margin-top:1rem; font-size:0.8rem;">v2.3.1 · layout kit</p>
+      </footer>
+    </aside>
+
+    <!-- main content column (semantic <main>) -->
+    <main class="main-content">
+
+      <!-- page header -->
+      <header class="content-header">
+        <h1>multi‑config layouts</h1>
+        <p>grid‑based blocks + fixed sidebar template — all semantic tags</p>
+      </header>
+
+      <!-- GRID CONFIGURATION A : 3-column grid section -->
+      <section class="grid-section">
+        <header>
+          <h3>📐 grid A · triple column</h3>
+          <span class="badge">3fr / 1fr / 1fr</span>
+        </header>
+        <div class="grid-container grid-config-a">
+          <article class="grid-card">
+            <h4>explore</h4>
+            <p>Semantic grid with three cards, each using article and header/footer.</p>
+            <footer><span>🔷 alpha</span> <span>v1</span></footer>
+          </article>
+          <article class="grid-card">
+            <h4>compose</h4>
+            <p>Perfect for dashboards or collections. Fully responsive.</p>
+            <footer><span>🔶 beta</span> <span>v2</span></footer>
+          </article>
+          <article class="grid-card">
+            <h4>analyze</h4>
+            <p>Includes nested footer, time stamps, and consistent padding.</p>
+            <footer><span>🟢 stable</span> <span>v3</span></footer>
+          </article>
+        </div>
+      </section>
+
+      <!-- GRID CONFIGURATION B : asymmetric 2fr + 1fr -->
+      <section class="grid-section">
+        <header>
+          <h3>⚖️ grid B · asymmetric (2fr + 1fr)</h3>
+          <span class="badge">featured + sidebar</span>
+        </header>
+        <div class="grid-container grid-config-b">
+          <article class="grid-card">
+            <h4>spotlight</h4>
+            <p>Wider column (2fr) — great for main content, summaries, or calls‑to‑action. All inside semantic article.</p>
+            <footer>🟠 2,4k views</footer>
+          </article>
+          <article class="grid-card">
+            <h4>meta</h4>
+            <p>Narrow column for metadata, tags, or quick links.</p>
+            <footer>⚡ updated</footer>
+          </article>
+        </div>
+      </section>
+
+      <!-- GRID CONFIGURATION C : 4-column micro grid -->
+      <section class="grid-section">
+        <header>
+          <h3>🧩 grid C · four columns</h3>
+          <span class="badge">compact tools</span>
+        </header>
+        <div class="grid-container grid-config-c">
+          <article class="grid-card">
+            <h4>tool</h4>
+            <p>icon</p>
+            <footer>⌘1</footer>
+          </article>
+          <article class="grid-card">
+            <h4>style</h4>
+            <p>css</p>
+            <footer>⌘2</footer>
+          </article>
+          <article class="grid-card">
+            <h4>code</h4>
+            <p>html</p>
+            <footer>⌘3</footer>
+          </article>
+          <article class="grid-card">
+            <h4>test</h4>
+            <p>jest</p>
+            <footer>⌘4</footer>
+          </article>
+        </div>
+      </section>
+
+      <!-- extra semantic region: article feed (showcasing time, header) -->
+      <article class="article-feed">
+        <header>
+          <h3>📰 recent articles</h3>
+          <span class="badge">feed</span>
+        </header>
+        <div class="feed-item">
+          <time datetime="2025-03-20">20 mar</time>
+          <p><strong>grid deep-dive</strong> · css subgrid and templates</p>
+        </div>
+        <div class="feed-item">
+          <time datetime="2025-03-18">18 mar</time>
+          <p><strong>fixed sidebar patterns</strong> · sticky + semantic html</p>
+        </div>
+        <div class="feed-item">
+          <time datetime="2025-03-15">15 mar</time>
+          <p><strong>semantic ui</strong> · header, main, footer, section, article</p>
+        </div>
+        <footer style="margin-top: 1.2rem; color:#456f94;">📌 3 entries · end of feed</footer>
+      </article>
+    </main>
+  </div> <!-- end app-layout -->
+
+  <!-- global page footer (semantic) -->
+  <footer class="page-footer">
+    <p>🧱 semantic layout experiment — grid‑based + fixed sidebar template. all tags: <code>header, footer, main, aside, section, article, nav, time</code>.</p>
+  </footer>
+</body>
+</html>

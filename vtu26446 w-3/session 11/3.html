@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>urban cart · advanced filter UI</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f7fc;
+      color: #1e2b3c;
+      padding: 2rem 1.8rem;
+      min-height: 100vh;
+    }
+
+    .shop-container {
+      max-width: 1600px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 2.2rem;
+    }
+
+    /* ===== FILTER SIDEBAR (advanced) ===== */
+    .filter-sidebar {
+      background: white;
+      border-radius: 32px;
+      padding: 2rem 1.6rem;
+      box-shadow: 0 20px 35px -10px rgba(0, 30, 60, 0.1);
+      border: 1px solid #e6eefb;
+      align-self: start;
+      position: sticky;
+      top: 2rem;
+      height: fit-content;
+    }
+
+    .filter-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2.2rem;
+    }
+
+    .filter-header h2 {
+      font-size: 1.9rem;
+      font-weight: 650;
+      background: linear-gradient(145deg, #1f4462, #2b6390);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .clear-btn {
+      background: #edf4fd;
+      border: none;
+      padding: 0.4rem 1.2rem;
+      border-radius: 40px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #1f5380;
+      cursor: pointer;
+      transition: 0.15s;
+      border: 1px solid #bdd3ec;
+    }
+
+    .clear-btn:hover {
+      background: #dce9f8;
+      border-color: #8fb4dc;
+    }
+
+    /* filter section */
+    .filter-section {
+      margin-bottom: 2.2rem;
+      border-bottom: 1px solid #e2ecf7;
+      padding-bottom: 1.8rem;
+    }
+
+    .filter-section:last-of-type {
+      border-bottom: none;
+    }
+
+    .filter-section h3 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #113753;
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    /* PRICE RANGE (custom slider + numeric) */
+    .price-range {
+      padding: 0 0.4rem;
+    }
+
+    .slider-container {
+      margin: 1.2rem 0 0.8rem;
+    }
+
+    input[type=range] {
+      width: 100%;
+      height: 6px;
+      background: linear-gradient(90deg, #245e8f 0%, #245e8f 40%, #d0e0f0 40%, #d0e0f0 100%);
+      border-radius: 10px;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      box-shadow: 0 4px 8px rgba(0,40,70,0.3);
+      border: 2px solid #1a5d8f;
+      cursor: pointer;
+      margin-top: -7px;
+    }
+
+    .price-inputs {
+      display: flex;
+      gap: 0.8rem;
+      margin-top: 1rem;
+    }
+
+    .price-inputs div {
+      background: #f1f7fd;
+      border-radius: 40px;
+      padding: 0.4rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      border: 1px solid #bdd2ea;
+    }
+
+    .price-inputs span {
+      color: #1f4b73;
+      font-weight: 500;
+    }
+
+    .price-inputs input {
+      width: 70px;
+      border: none;
+      background: transparent;
+      font-weight: 600;
+      color: #0c2e44;
+      outline: none;
+      padding: 0.2rem 0;
+    }
+
+    /* COLOR PALETTE (circles) */
+    .color-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem 1rem;
+    }
+
+    .color-option {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.2rem;
+      cursor: pointer;
+      font-size: 0.8rem;
+      color: #2b577b;
+    }
+
+    .color-swatch {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 2px solid white;
+      box-shadow: 0 0 0 1px #b9cfe6;
+      transition: transform 0.1s;
+    }
+
+    .color-option.selected .color-swatch {
+      box-shadow: 0 0 0 3px #1e6b9f, 0 0 0 5px white;
+      transform: scale(1.02);
+    }
+
+    .color-option span {
+      font-weight: 500;
+    }
+
+    /* BRAND SELECTION (checkbox list) */
+    .brand-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+    }
+
+    .brand-item {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      cursor: pointer;
+      font-weight: 500;
+      color: #1d4b72;
+    }
+
+    .brand-item input[type="checkbox"] {
+      width: 1.2rem;
+      height: 1.2rem;
+      accent-color: #1f6ea5;
+      border-radius: 6px;
+    }
+
+    .brand-count {
+      margin-left: auto;
+      background: #e1effa;
+      padding: 0.2rem 0.7rem;
+      border-radius: 40px;
+      font-size: 0.75rem;
+      color: #1d5982;
+    }
+
+    /* CUSTOMER RATINGS (stars) */
+    .rating-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .rating-option {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      cursor: pointer;
+    }
+
+    .rating-option input[type="radio"] {
+      width: 1.1rem;
+      height: 1.1rem;
+      accent-color: #1b6fb0;
+    }
+
+    .stars {
+      display: flex;
+      gap: 0.2rem;
+      color: #ffb83b;
+      font-size: 1.2rem;
+      letter-spacing: 2px;
+    }
+
+    .stars .inactive {
+      color: #cbdae9;
+    }
+
+    .rating-label {
+      font-weight: 500;
+      color: #1e4d73;
+      margin-left: 0.2rem;
+    }
+
+    /* ===== PRODUCT GRID ===== */
+    .product-listing {
+      display: flex;
+      flex-direction: column;
+      gap: 1.8rem;
+    }
+
+    .results-header {
+      background: white;
+      border-radius: 28px;
+      padding: 1.4rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid #e1ebf7;
+      flex-wrap: wrap;
+    }
+
+    .results-header h1 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: #123a53;
+    }
+
+    .results-header .sort {
+      background: #f3f9ff;
+      padding: 0.5rem 1.2rem;
+      border-radius: 40px;
+      border: 1px solid #c3dbf2;
+      font-size: 0.95rem;
+      color: #1e5680;
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.8rem;
+    }
+
+    /* product card */
+    .product-card {
+      background: white;
+      border-radius: 30px;
+      padding: 1.5rem 1.2rem 1.5rem;
+      border: 1px solid #e0edfa;
+      transition: all 0.2s;
+      box-shadow: 0 8px 16px -10px rgba(10, 40, 70, 0.1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .product-card:hover {
+      transform: translateY(-6px);
+      border-color: #b1cde7;
+      box-shadow: 0 20px 28px -12px rgba(0, 60, 110, 0.2);
+    }
+
+    .product-image {
+      background: #f0f7ff;
+      height: 150px;
+      border-radius: 20px;
+      margin-bottom: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      border: 1px solid #d7e6f9;
+    }
+
+    .product-brand {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #3781b9;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .product-title {
+      font-weight: 650;
+      font-size: 1.25rem;
+      margin: 0.2rem 0 0.4rem;
+      color: #0d3149;
+    }
+
+    .product-rating {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      margin: 0.4rem 0;
+    }
+
+    .product-rating .stars-small {
+      color: #f9b93b;
+      font-size: 1rem;
+    }
+
+    .reviews {
+      color: #607f9e;
+      font-size: 0.8rem;
+    }
+
+    .product-price {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1b4d73;
+      margin: 0.5rem 0 0.8rem;
+    }
+
+    .product-color-dot {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 1px solid #b0c8e2;
+      margin-right: 0.4rem;
+      vertical-align: middle;
+    }
+
+    .product-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: auto;
+    }
+
+    .add-btn {
+      background: #1b5f92;
+      border: none;
+      color: white;
+      padding: 0.5rem 1.4rem;
+      border-radius: 60px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .add-btn:hover {
+      background: #134b77;
+    }
+
+    /* responsive */
+    @media (max-width: 1200px) {
+      .product-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 900px) {
+      .shop-container {
+        grid-template-columns: 1fr;
+      }
+      .filter-sidebar {
+        position: static;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .product-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shop-container">
+
+    <!-- FILTER SIDEBAR (advanced) -->
+    <aside class="filter-sidebar">
+      <div class="filter-header">
+        <h2>filter</h2>
+        <button class="clear-btn" id="clearFiltersBtn" type="button">✕ clear all</button>
+      </div>
+
+      <!-- 1. PRICE RANGE filter -->
+      <section class="filter-section">
+        <h3>💰 price range</h3>
+        <div class="price-range">
+          <div class="slider-container">
+            <input type="range" id="priceSlider" min="0" max="500" value="250" step="5">
+          </div>
+          <div class="price-inputs">
+            <div><span>$</span><input type="number" id="minPrice" value="0" min="0" max="500" step="5"></div>
+            <div><span>$</span><input type="number" id="maxPrice" value="250" min="0" max="500" step="5"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. COLOR PALETTE (grid of colors) -->
+      <section class="filter-section">
+        <h3>🎨 color palette</h3>
+        <div class="color-grid" id="colorFilterContainer">
+          <!-- dynamically built but static for demo, interaction via js -->
+          <div class="color-option" data-color="black">
+            <div class="color-swatch" style="background:#222;"></div>
+            <span>black</span>
+          </div>
+          <div class="color-option" data-color="white">
+            <div class="color-swatch" style="background:#f0f0f0; border:1px solid #ccc;"></div>
+            <span>white</span>
+          </div>
+          <div class="color-option" data-color="navy">
+            <div class="color-swatch" style="background:#1f2f54;"></div>
+            <span>navy</span>
+          </div>
+          <div class="color-option" data-color="sage">
+            <div class="color-swatch" style="background:#8a9b7e;"></div>
+            <span>sage</span>
+          </div>
+          <div class="color-option" data-color="clay">
+            <div class="color-swatch" style="background:#b66d5b;"></div>
+            <span>clay</span>
+          </div>
+          <div class="color-option" data-color="sand">
+            <div class="color-swatch" style="background:#dbb88c;"></div>
+            <span>sand</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. BRAND SELECTION (checkboxes) -->
+      <section class="filter-section">
+        <h3>🏷️ brand</h3>
+        <div class="brand-list" id="brandFilterContainer">
+          <label class="brand-item">
+            <input type="checkbox" value="urban"> urban craft <span class="brand-count">12</span>
+          </label>
+          <label class="brand-item">
+            <input type="checkbox" value="nordic"> nordic pulse <span class="brand-count">8</span>
+          </label>
+          <label class="brand-item">
+            <input type="checkbox" value="element"> element <span class="brand-count">6</span>
+          </label>
+          <label class="brand-item">
+            <input type="checkbox" value="base"> base <span class="brand-count">9</span>
+          </label>
+          <label class="brand-item">
+            <input type="checkbox" value="terra"> terra <span class="brand-count">5</span>
+          </label>
+        </div>
+      </section>
+
+      <!-- 4. CUSTOMER RATINGS (radio) -->
+      <section class="filter-section">
+        <h3>⭐ customer rating</h3>
+        <div class="rating-list" id="ratingFilterContainer">
+          <label class="rating-option">
+            <input type="radio" name="rating" value="4.5"> 
+            <span class="stars">★★★★★</span> <span class="rating-label">4.5 & up</span>
+          </label>
+          <label class="rating-option">
+            <input type="radio" name="rating" value="4"> 
+            <span class="stars">★★★★☆<span class="inactive">★</span></span> <span class="rating-label">4.0 & up</span>
+          </label>
+          <label class="rating-option">
+            <input type="radio" name="rating" value="3.5"> 
+            <span class="stars">★★★☆☆<span class="inactive">★★</span></span> <span class="rating-label">3.5 & up</span>
+          </label>
+          <label class="rating-option">
+            <input type="radio" name="rating" value="3"> 
+            <span class="stars">★★★☆☆<span class="inactive">★★</span></span> <span class="rating-label">3.0 & up</span>
+          </label>
+          <label class="rating-option">
+            <input type="radio" name="rating" value=""> 
+            <span class="stars">☆☆☆☆☆</span> <span class="rating-label">any</span>
+          </label>
+        </div>
+      </section>
+
+      <div style="margin-top:1rem; font-size:0.8rem; color:#46799e; text-align:center;">
+        ⚡ interactive filters (JS demo) · price, color, brand, rating
+      </div>
+    </aside>
+
+    <!-- PRODUCT GRID AREA -->
+    <main class="product-listing">
+      <header class="results-header">
+        <h1>discover <span id="productCount">12</span> items</h1>
+        <div class="sort">sort by: featured ▼</div>
+      </header>
+
+      <!-- dynamic product grid (updated by filter) -->
+      <div class="product-grid" id="productGrid">
+        <!-- products injected via javascript -->
+      </div>
+
+      <!-- (optional) note: filter logic uses dataset) -->
+      <footer style="color:#4a789b; padding:1rem 0; text-align:right;">⚡ advanced filters: price range, color, brand, rating</footer>
+    </main>
+  </div>
+
+  <script>
+    (function() {
+      // ---------- PRODUCT DATA (rich with filter dimensions) ----------
+      const products = [
+        { id:1, name:'concrete backpack', brand:'urban', price:89, color:'black', rating:4.7, reviews:34, image:'🎒' },
+        { id:2, name:'field jacket', brand:'nordic', price:215, color:'navy', rating:4.2, reviews:56, image:'🧥' },
+        { id:3, name:'canvas tote', brand:'element', price:49, color:'sand', rating:3.8, reviews:21, image:'👜' },
+        { id:4, name:'merino beanie', brand:'base', price:32, color:'clay', rating:4.5, reviews:17, image:'🧢' },
+        { id:5, name:'leather wallet', brand:'terra', price:79, color:'black', rating:4.3, reviews:42, image:'👝' },
+        { id:6, name:'sling bag', brand:'urban', price:65, color:'sage', rating:4.6, reviews:28, image:'🎒' },
+        { id:7, name:'water bottle', brand:'nordic', price:28, color:'white', rating:4.0, reviews:63, image:'🧴' },
+        { id:8, name:'sun hat', brand:'element', price:38, color:'sand', rating:3.9, reviews:12, image:'🧢' },
+        { id:9, name:'wool scarf', brand:'base', price:45, color:'navy', rating:4.8, reviews:9, image:'🧣' },
+        { id:10, name:'trek pants', brand:'terra', price:120, color:'sage', rating:4.4, reviews:31, image:'👖' },
+        { id:11, name:'hoodie', brand:'urban', price:78, color:'clay', rating:4.1, reviews:47, image:'👕' },
+        { id:12, name:'snow gloves', brand:'nordic', price:55, color:'black', rating:3.7, reviews:14, image:'🧤' },
+      ];
+
+      // references
+      const productGrid = document.getElementById('productGrid');
+      const productCountSpan = document.getElementById('productCount');
+
+      // filter inputs
+      const priceSlider = document.getElementById('priceSlider');
+      const minPriceInput = document.getElementById('minPrice');
+      const maxPriceInput = document.getElementById('maxPrice');
+
+      const colorOptions = document.querySelectorAll('.color-option');
+      const brandCheckboxes = document.querySelectorAll('#brandFilterContainer input[type="checkbox"]');
+      const ratingRadios = document.querySelectorAll('#ratingFilterContainer input[type="radio"]');
+      const clearBtn = document.getElementById('clearFiltersBtn');
+
+      // state
+      let selectedColors = new Set();        // multiple colors allowed
+      let selectedBrands = new Set();
+      let selectedRating = null;              // numeric minimum (eg 4.0)
+      let maxPrice = 250, minPrice = 0;
+
+      // helper: render products based on all filters
+      function filterProducts() {
+        // price range from inputs
+        minPrice = parseFloat(minPriceInput.value) || 0;
+        maxPrice = parseFloat(maxPriceInput.value) || 500;
+        if (minPrice > maxPrice) { let tmp = minPrice; minPrice = maxPrice; maxPrice = tmp; }
+
+        const ratingValue = selectedRating ? parseFloat(selectedRating) : 0;
+
+        const filtered = products.filter(p => {
+          // price
+          if (p.price < minPrice || p.price > maxPrice) return false;
+          // color (if any selected) -> if set not empty and product color not in set => exclude
+          if (selectedColors.size > 0 && !selectedColors.has(p.color)) return false;
+          // brand (if any selected)
+          if (selectedBrands.size > 0 && !selectedBrands.has(p.brand)) return false;
+          // rating (if selected rating > 0)
+          if (ratingValue > 0 && p.rating < ratingValue) return false;
+          return true;
+        });
+
+        renderProducts(filtered);
+        productCountSpan.innerText = filtered.length;
+      }
+
+      // render product cards
+      function renderProducts(productArray) {
+        if (productArray.length === 0) {
+          productGrid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:3rem; background:#f4f9ff; border-radius:40px; color:#2a628b;">✨ no items match filters · try adjusting</div>`;
+          return;
+        }
+
+        let html = '';
+        productArray.forEach(p => {
+          // star display (simplified)
+          const fullStars = Math.floor(p.rating);
+          const hasHalf = p.rating % 1 >= 0.5;
+          let starsStr = '';
+          for (let i=0; i<5; i++) {
+            if (i < fullStars) starsStr += '★'; 
+            else if (i === fullStars && hasHalf) starsStr += '½'; 
+            else starsStr += '☆';
+          }
+
+          html += `
+            <article class="product-card">
+              <div class="product-image">${p.image}</div>
+              <div class="product-brand">${p.brand}</div>
+              <div class="product-title">${p.name}</div>
+              <div class="product-rating">
+                <span class="stars-small">${starsStr}</span>
+                <span class="reviews">(${p.reviews})</span>
+              </div>
+              <div class="product-price">$${p.price}</div>
+              <div><span class="product-color-dot" style="background:${p.color === 'black'?'#222':p.color==='white'?'#f0f0f0':p.color==='navy'?'#1f2f54':p.color==='sage'?'#8a9b7e':p.color==='clay'?'#b66d5b':'#dbb88c'};"></span> ${p.color}</div>
+              <div class="product-footer">
+                <button class="add-btn" aria-label="add to cart">add</button>
+                <span>❤️</span>
+              </div>
+            </article>
+          `;
+        });
+        productGrid.innerHTML = html;
+      }
+
+      // EVENT LISTENERS
+
+      // price slider + inputs sync
+      function updatePriceFromSlider() {
+        maxPriceInput.value = priceSlider.value;
+        filterProducts();
+      }
+      priceSlider.addEventListener('input', updatePriceFromSlider);
+      
+      minPriceInput.addEventListener('input', () => {
+        filterProducts();
+        // adjust slider background simplistically
+      });
+      maxPriceInput.addEventListener('input', () => {
+        priceSlider.value = maxPriceInput.value;
+        filterProducts();
+      });
+
+      // color clicks (toggle selection)
+      colorOptions.forEach(opt => {
+        opt.addEventListener('click', (e) => {
+          const color = opt.dataset.color;
+          if (selectedColors.has(color)) {
+            selectedColors.delete(color);
+            opt.classList.remove('selected');
+          } else {
+            selectedColors.add(color);
+            opt.classList.add('selected');
+          }
+          filterProducts();
+        });
+      });
+
+      // brand checkboxes
+      brandCheckboxes.forEach(cb => {
+        cb.addEventListener('change', () => {
+          selectedBrands.clear();
+          brandCheckboxes.forEach(c => { if(c.checked) selectedBrands.add(c.value); });
+          filterProducts();
+        });
+      });
+
+      // rating radios
+      ratingRadios.forEach(r => {
+        r.addEventListener('change', () => {
+          if (r.checked) {
+            selectedRating = r.value ? parseFloat(r.value) : null;  // null if empty (any)
+          }
+          filterProducts();
+        });
+      });
+
+      // clear all filters
+      clearBtn.addEventListener('click', () => {
+        // reset price range
+        minPriceInput.value = 0;
+        maxPriceInput.value = 250;
+        priceSlider.value = 250;
+        // clear colors
+        selectedColors.clear();
+        colorOptions.forEach(opt => opt.classList.remove('selected'));
+        // clear brands
+        brandCheckboxes.forEach(c => { c.checked = false; });
+        selectedBrands.clear();
+        // clear rating (set "any")
+        ratingRadios.forEach(r => { if (r.value === "") r.checked = true; else r.checked = false; });
+        selectedRating = null;
+        
+        filterProducts();
+      });
+
+      // set default rating "any" to true
+      document.querySelector('#ratingFilterContainer input[value=""]').checked = true;
+      
+      // initial render
+      filterProducts();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>accessible auth · sign in / sign up with aria</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(145deg, #f0f5fe 0%, #e6edf9 100%);
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .auth-container {
+      max-width: 1100px;
+      width: 100%;
+      background: rgba(255,255,255,0.7);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 3rem;
+      box-shadow: 0 30px 60px -20px rgba(0,40,80,0.3);
+      border: 1px solid rgba(255,255,255,0.5);
+      overflow: hidden;
+      padding: 2rem 2rem 2.5rem;
+    }
+
+    /* header with simple toggle / info */
+    .auth-header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+    .auth-header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      background: linear-gradient(165deg, #113355, #1e4b76);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.25rem;
+    }
+    .auth-header p {
+      color: #2f5579;
+      font-size: 1.1rem;
+    }
+
+    /* two-column layout for sign in / sign up */
+    .auth-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      align-items: stretch;
+    }
+
+    /* shared card styles */
+    .auth-card {
+      background: white;
+      border-radius: 2.2rem;
+      padding: 2rem 2rem 2.2rem;
+      box-shadow: 0 15px 35px -10px rgba(0,45,80,0.15);
+      border: 1px solid #dde9fc;
+      transition: box-shadow 0.2s;
+    }
+    .auth-card:hover {
+      box-shadow: 0 25px 40px -12px rgba(0,80,130,0.2);
+    }
+
+    .card-title {
+      font-size: 2rem;
+      font-weight: 600;
+      color: #153e5c;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .card-title span {
+      font-size: 1.8rem;
+    }
+
+    /* form schema – standardized spacing */
+    .auth-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    /* labels with optional aria (already implicit but explicit) */
+    label {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #1f4465;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    /* necessary ARIA describedby / errormsg can be tied, we add spans */
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    input {
+      width: 100%;
+      padding: 1rem 1.2rem;
+      border: 2px solid #d3e2f5;
+      border-radius: 60px;
+      font-size: 1rem;
+      background: #ffffff;
+      transition: border 0.15s, box-shadow 0.15s;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #1d6f9e;
+      box-shadow: 0 0 0 4px rgba(27, 96, 154, 0.2);
+    }
+
+    /* aria-invalid example (static but we include attributes) */
+    input[aria-invalid="true"] {
+      border-color: #b22234;
+      background-color: #fff8f8;
+    }
+
+    .hint-text {
+      font-size: 0.8rem;
+      color: #53718e;
+      margin-left: 0.5rem;
+    }
+
+    /* error message container (for demonstration) */
+    .error-message {
+      color: #b13e3e;
+      font-size: 0.8rem;
+      margin-top: 0.2rem;
+      padding-left: 1rem;
+      background: #ffefef;
+      border-radius: 40px;
+      padding: 0.3rem 1rem;
+      display: inline-block;
+      width: fit-content;
+    }
+
+    /* aria live region for status (static but present) */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      border: 0;
+    }
+
+    /* password field with extra note */
+    .password-constraints {
+      font-size: 0.8rem;
+      color: #3c6488;
+      margin-top: 0.2rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    /* button styles */
+    .btn-submit {
+      background: #1d4e7c;
+      color: white;
+      border: none;
+      border-radius: 60px;
+      padding: 1rem 1.5rem;
+      font-weight: 700;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      margin-top: 0.5rem;
+      border: 1px solid #184370;
+    }
+    .btn-submit:hover {
+      background: #0f3b60;
+    }
+    .btn-submit:focus {
+      outline: 3px solid #8bb9e0;
+      outline-offset: 2px;
+    }
+
+    /* signup extra fields grid */
+    .name-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    /* separator */
+    .divider {
+      display: flex;
+      align-items: center;
+      color: #7599bc;
+      font-size: 0.9rem;
+      gap: 0.5rem;
+      margin: 1rem 0 0.5rem;
+    }
+    .divider-line {
+      height: 1px;
+      background: #cbdaf0;
+      flex: 1;
+    }
+
+    /* demo note / extra aria live polite region */
+    .aria-notes {
+      background: #e7f1fd;
+      border-radius: 60px;
+      padding: 0.8rem 1.5rem;
+      margin-top: 2rem;
+      font-size: 0.9rem;
+      color: #164863;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: space-between;
+    }
+    .badge {
+      background: #1e4c77;
+      color: white;
+      padding: 0.2rem 1rem;
+      border-radius: 60px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    /* responsive */
+    @media (max-width: 750px) {
+      .auth-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+      body { padding: 0.8rem; }
+      .auth-container { padding: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <header class="auth-header">
+      <h1>🔐 access · aria</h1>
+      <p>standardized forms with full semantic & accessibility labels</p>
+    </header>
+
+    <!-- two‑column sign‑in / sign‑up -->
+    <div class="auth-grid">
+      
+      <!-- SIGN IN CARD -->
+      <section class="auth-card" aria-labelledby="signin-heading">
+        <div class="card-title">
+          <span>↪️</span> <h2 id="signin-heading">sign in</h2>
+        </div>
+        <p style="color:#416e96;">returning member</p>
+
+        <form class="auth-form" id="signin-form" novalidate aria-label="sign in form">
+          <!-- email field -->
+          <div class="form-group">
+            <label for="signin-email">
+              <span>📧</span> email address
+            </label>
+            <div class="input-wrapper">
+              <input type="email" id="signin-email" name="email" 
+                     aria-label="Email address" 
+                     aria-required="true"
+                     aria-describedby="signin-email-hint"
+                     placeholder="alex@example.com"
+                     required>
+            </div>
+            <span id="signin-email-hint" class="hint-text">we'll never share your email</span>
+          </div>
+
+          <!-- password field -->
+          <div class="form-group">
+            <label for="signin-password">
+              <span>🔑</span> password
+            </label>
+            <input type="password" id="signin-password" name="password" 
+                   aria-label="Password"
+                   aria-required="true"
+                   aria-describedby="signin-pw-hint"
+                   placeholder="········"
+                   minlength="8"
+                   required>
+            <span id="signin-pw-hint" class="hint-text">min 8 characters</span>
+            
+            <!-- (optional) aria-invalid demo – not actually invalid, but showing pattern -->
+            <div id="signin-pw-error" class="error-message" role="alert" aria-live="polite" style="display: none;">wrong password (demo)</div>
+          </div>
+
+          <!-- remember me row (extra) -->
+          <div style="display: flex; align-items: center; gap: 0.8rem; margin: 0.2rem 0;">
+            <input type="checkbox" id="remember" aria-label="remember this device" style="width: 1.2rem; height:1.2rem;">
+            <label for="remember" style="font-weight: 400;">remember me</label>
+          </div>
+
+          <!-- submit button -->
+          <button type="submit" class="btn-submit" aria-label="sign in to your account">
+            sign in →
+          </button>
+
+          <!-- demo lost password link (just ui) -->
+          <div style="text-align: center; margin-top: 0.5rem;">
+            <a href="#" aria-label="reset forgotten password" style="color:#336699;">forgot password?</a>
+          </div>
+        </form>
+
+        <!-- hidden aria live region for status messages (would be updated via js) -->
+        <div class="sr-only" aria-live="polite" aria-atomic="true" id="signin-live">sign in form loaded</div>
+      </section>
+
+      <!-- SIGN UP CARD (more fields) -->
+      <section class="auth-card" aria-labelledby="signup-heading">
+        <div class="card-title">
+          <span>✨</span> <h2 id="signup-heading">sign up</h2>
+        </div>
+        <p style="color:#416e96;">create an account (it's free)</p>
+
+        <form class="auth-form" id="signup-form" novalidate aria-label="sign up form">
+          <!-- first & last name row (grid) -->
+          <div class="name-row">
+            <div class="form-group">
+              <label for="first-name">👤 first name</label>
+              <input type="text" id="first-name" name="firstname" 
+                     aria-label="First name"
+                     aria-required="true"
+                     placeholder="Alex"
+                     required>
+            </div>
+            <div class="form-group">
+              <label for="last-name">📛 last name</label>
+              <input type="text" id="last-name" name="lastname" 
+                     aria-label="Last name"
+                     aria-required="true"
+                     placeholder="Chen"
+                     required>
+            </div>
+          </div>
+
+          <!-- email field (signup) -->
+          <div class="form-group">
+            <label for="signup-email">📧 email</label>
+            <input type="email" id="signup-email" name="email" 
+                   aria-label="Email address"
+                   aria-required="true"
+                   aria-describedby="signup-email-hint"
+                   placeholder="hello@domain.com"
+                   required>
+            <span id="signup-email-hint" class="hint-text">we'll send a verification</span>
+          </div>
+
+          <!-- password with strength hint (aria) -->
+          <div class="form-group">
+            <label for="signup-password">🔒 password</label>
+            <input type="password" id="signup-password" name="password" 
+                   aria-label="Password"
+                   aria-required="true"
+                   aria-describedby="pw-constraints"
+                   minlength="8"
+                   required>
+            <div id="pw-constraints" class="password-constraints">
+              <span>✔️ at least 8 characters</span>
+              <span>🔡 1 letter & 1 number</span>
+            </div>
+            <!-- example of inline error for demo (static) but we set aria-invalid on conflict? keep friendly -->
+          </div>
+
+          <!-- confirm password (with aria labels) -->
+          <div class="form-group">
+            <label for="confirm-password">✓ confirm password</label>
+            <input type="password" id="confirm-password" name="confirm_password" 
+                   aria-label="Confirm password"
+                   aria-required="true"
+                   aria-describedby="confirm-hint"
+                   required>
+            <span id="confirm-hint" class="hint-text">must match password above</span>
+          </div>
+
+          <!-- terms checkbox (with aria) -->
+          <div style="display: flex; align-items: center; gap: 0.8rem; margin: 0.2rem 0;">
+            <input type="checkbox" id="terms" name="terms" aria-label="accept terms and privacy policy" required style="width: 1.2rem; height:1.2rem;">
+            <label for="terms" style="font-weight: 400;">i accept the <a href="#" aria-label="terms and conditions (opens in same window)">terms</a> and <a href="#" aria-label="privacy policy">privacy</a></label>
+          </div>
+
+          <!-- sign up button -->
+          <button type="submit" class="btn-submit" aria-label="create new account">
+            create account →
+          </button>
+
+          <!-- extra note with aria-live region (polite) -->
+          <div class="divider">
+            <span class="divider-line"></span>
+            <span>existing user? <a href="#" aria-label="go to sign in instead">sign in</a></span>
+            <span class="divider-line"></span>
+          </div>
+        </form>
+        <!-- live region for signup feedback -->
+        <div class="sr-only" aria-live="polite" aria-atomic="true" id="signup-live">sign up form ready</div>
+      </section>
+    </div>
+
+    <!-- FOOTER / aria checklist summary (visual demonstration of labels) -->
+    <footer class="aria-notes" role="contentinfo" aria-label="accessibility features summary">
+      <span>✅ all inputs have <strong>aria-label</strong> / labelledby</span>
+      <span>🔤 <strong>aria-required</strong> on mandatory fields</span>
+      <span>📢 <strong>aria-describedby</strong> hints</span>
+      <span class="badge">wcga 2.1 AA</span>
+    </footer>
+
+    <!-- hidden live region for global announcements (if any) -->
+    <div class="sr-only" aria-live="assertive" aria-atomic="true" id="global-announce"></div>
+  </div>
+
+  <!-- tiny script to demonstrate interactive aria (just for demo / no real validation) 
+       but we keep everything clean, only to show how error / alert can be wired. 
+       we add a click handler on both forms to prevent actual submit and show a polite message -->
+  <script>
+    (function() {
+      // prevent actual page reload and show fake ARIA live feedback
+      const signinForm = document.getElementById('signin-form');
+      const signupForm = document.getElementById('signup-form');
+      const signinLive = document.getElementById('signin-live');
+      const signupLive = document.getElementById('signup-live');
+      const globalAnnounce = document.getElementById('global-announce');
+
+      // helper to set live region text
+      function announce(element, message) {
+        element.textContent = message;
+        // after a short delay, clear to avoid repeated reading? fine.
+        setTimeout(() => { element.textContent = 'ready'; }, 2000);
+      }
+
+      signinForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        // simulate demo check: if fields are filled? just show message.
+        const email = document.getElementById('signin-email').value.trim();
+        const pw = document.getElementById('signin-password').value;
+        if (!email || !pw) {
+          announce(globalAnnounce, 'sign in error: email and password required');
+          // optionally show an error element (demo)
+          const errDiv = document.getElementById('signin-pw-error');
+          errDiv.style.display = 'inline-block';
+          errDiv.textContent = '⛔ both fields required';
+          setTimeout(() => { errDiv.style.display = 'none'; }, 3000);
+        } else {
+          announce(globalAnnounce, `signing in as ${email} (demo)`);
+          // hide any previous error
+          document.getElementById('signin-pw-error').style.display = 'none';
+        }
+        // set aria-invalid demo randomly? not needed.
+      });
+
+      signupForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const firstName = document.getElementById('first-name').value.trim();
+        const email = document.getElementById('signup-email').value.trim();
+        const pw = document.getElementById('signup-password').value;
+        const confirm = document.getElementById('confirm-password').value;
+        const terms = document.getElementById('terms').checked;
+
+        if (!firstName || !email || !pw || !confirm || !terms) {
+          announce(globalAnnounce, 'sign up error: please fill all required fields');
+          // optionally we could inject a dynamic alert, but just use global.
+        } else if (pw !== confirm) {
+          announce(globalAnnounce, 'error: passwords do not match');
+        } else {
+          announce(globalAnnounce, `welcome ${firstName}! account created (demo)`);
+        }
+      });
+
+      // For demonstration, attach some aria attributes to show pattern.
+      // On password mismatch we could set aria-invalid, but it's a static demo.
+      // We'll show a small hint in confirm password input via aria-describedby dynamic update? not necessary.
+      // set initial aria-invalid false for all required fields (they are not invalid)
+      document.querySelectorAll('input[required]').forEach(inp => {
+        inp.setAttribute('aria-invalid', 'false');
+      });
+
+      // Extra: when confirm password field loses value, we could set aria-invalid (just as demo)
+      const confirmPw = document.getElementById('confirm-password');
+      const pwField = document.getElementById('signup-password');
+      if (confirmPw && pwField) {
+        confirmPw.addEventListener('input', () => {
+          if (confirmPw.value && confirmPw.value !== pwField.value) {
+            confirmPw.setAttribute('aria-invalid', 'true');
+          } else {
+            confirmPw.setAttribute('aria-invalid', 'false');
+          }
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
